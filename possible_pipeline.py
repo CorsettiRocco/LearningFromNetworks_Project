@@ -75,6 +75,19 @@ def compute_scores(graph):
 
     return scores, times
 
+##
+#export nodes values into a csv file:
+#id:node
+#score_name: score associated for each node
+##
+    
+#@list_of_scores : e.g btw.scores()
+#@fp: file path to csv file
+#@score_name: name of the score
+def export_scores(list_of_scores,fp,score_name):
+
+    nk.gephi.exportNodeValues(list_of_scores,fp,score_name)
+
 
 G = read_text_graph("Test/Graphs/prova_grafo_grande.txt", False)
 scores, times = compute_scores(G)
