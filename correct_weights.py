@@ -10,7 +10,7 @@ while line != "":
     line = file.readline()
     params = line.split()
     if len(params) == 3:
-        edge_list.append( (params[0], params[1], params[2]) )
+        edge_list.append( (params[0], params[1], float(params[2])) )
 
 G = nx.Graph()
 G.add_weighted_edges_from(edge_list)
