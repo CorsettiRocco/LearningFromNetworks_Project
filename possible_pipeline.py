@@ -75,7 +75,7 @@ def compute_scores(graph):
 
     return scores, times
 
-##
+##export_scores(list_of_scores,fp,score_name)
 #export nodes values into a csv file:
 #id:node
 #score_name: score associated for each node
@@ -89,8 +89,11 @@ def export_scores(list_of_scores,fp,score_name):
     nk.gephi.exportNodeValues(list_of_scores,fp,score_name)
 
 
-G = read_text_graph("Test/Graphs/prova_grafo_grande.txt", False)
+G = read_text_graph("Test/Graphs/prova_grafo_piccolo.edges", False)
 scores, times = compute_scores(G)
+
+export_scores(scores['betweenness'],"csv/grafo_piccolo_btw.csv","btw")
+
 scores['betweenness'].sort()
 print("Top 10 scores = ", scores['betweenness'][len(scores['betweenness']) - 10 : len(scores['betweenness'])])
 #save_graph(G, "prova") --> Inutile finchè non sistemo il for che non capisco perchè non vada che nell'altro programma andava
