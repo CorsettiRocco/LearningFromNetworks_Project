@@ -1,6 +1,8 @@
 import networkit as nk
 import networkx as nx
 import time 
+import csv
+import os
 
 #The class provides a way to compute and store some node-scores
 #Provide a methods to:
@@ -21,6 +23,7 @@ class Scores_Calculator:
     #ATTRIBUTES
 
     graph = None
+    first_time = True
     
     scores = {
         'betweenness' : []
@@ -38,7 +41,7 @@ class Scores_Calculator:
     #METHODS
 
     #Constructor with optional graph as parameter
-    def __init__(self, g = None, weighted = False ,network_x = False):
+    def __init__(self, g = None, weighted = False ,network_x = False,name = ''):
         if g != None:
             if network_x:
                 self.graph = nk.nxadapter.nx2nk(g)
@@ -46,6 +49,11 @@ class Scores_Calculator:
                 self.graph = g
             if weighted:
                 self.graph = nk.graphtools.toWeighted(self.graph)
+        
+        #set first time value for csv generation
+        self.first_time = True
+        #set instance name used for csv file set and retrivial
+        self.name = name
 
     #Method that read a text file containing an edge_list and initialize the corresponding networkit graph
     def read_text_graph(self, file_path, weighted = False, format = nk.Format.EdgeListSpaceZero):
@@ -90,10 +98,30 @@ class Scores_Calculator:
     ##
     
     #@list_of_scores : e.g btw.scores()
-    #@fp: file path to csv file
+    #@path: folder path to csv file
     #@score_name: name of the score
-    def export_scores(self, file_path, score_name):                                         
-        nk.gephi.exportNodeValues(self.scores[score_name], file_path, score_name)
+    def export_scores(self, path, score_name):
+
+        if self.first_time:
+            path = path + self.name +'.csv'                                        
+            nk.gephi.exportNodeValues(self.scores[score_name], path, score_name)
+        else:
+            path_temp = path + 'temp.csv'
+            nk.gephi.exportNodeValues(self.scores[score_name], path_temp, score_name)
+
+            #append new column of score to csv associated with this instance
+            with open(path_temp,'r') as rd, open(path+self.name+'.csv','w',newline='') as wrt:
+                csv_reader = csv.reader(rd)
+                csv_writer = csv.writer(wrt)
+
+                for row in csv_reader:
+                    row.append(row[1])
+                    csv_writer.writerow(row)
+
+            os.remove(path+'temp.csv')
+
+        self.first_time = False
+
 
     #Method that compute the betweenness centrality of a node
     def betweenness_centrality(self):

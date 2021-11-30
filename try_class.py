@@ -1,7 +1,7 @@
 from Compute_Scores import Scores_Calculator
 
-CS = Scores_Calculator()
-CS.read_text_graph("Test/Graphs/prova_grafo_medio.txt")
+CS = Scores_Calculator(name='btw_small_graph')
+CS.read_text_graph("Test/Graphs/prova_grafo_piccolo.edges")
 CS.compute_scores()
 scores, times = CS.get_results()
 
@@ -35,6 +35,7 @@ print("\nEXACT VERSION:\n")
 print("Best btw scores: ", scores['betweenness'][ len(scores['betweenness']) - 5 : len(scores['betweenness']) ] )
 print("Execution time = ", times['betweenness'], " sec")
 
-CS.export_scores("csv/btw_middle_graph.csv", "betweenness")
+CS.export_scores("csv/", "betweenness")
+CS.export_scores("csv/", "betweenness")
 
 
