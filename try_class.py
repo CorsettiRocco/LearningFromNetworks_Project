@@ -36,6 +36,7 @@ print("Best btw scores: ", scores['betweenness'][ len(scores['betweenness']) - 5
 print("Execution time = ", times['betweenness'], " sec")
 
 CS.export_scores("csv/", "betweenness")
+#test new column
 CS.export_scores("csv/", "betweenness")
 
 

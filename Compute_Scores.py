@@ -23,7 +23,6 @@ class Scores_Calculator:
     #ATTRIBUTES
 
     graph = None
-    first_time = True
     
     scores = {
         'betweenness' : []
@@ -91,21 +90,23 @@ class Scores_Calculator:
         for key in self.params:
             self.params[key]['approx'] = approx
 
-    ##export_scores(list_of_scores,fp,score_name)
+    ##
+    #export_scores(list_of_scores,fp,score_name)
     #export nodes values into a csv file:
     #id:node
     #score_name: score associated for each node
-    ##
-    
     #@list_of_scores : e.g btw.scores()
     #@path: folder path to csv file
     #@score_name: name of the score
+    ##
     def export_scores(self, path, score_name):
 
         if self.first_time:
+            #if first time create associated csv file
             path = path + self.name +'.csv'                                        
             nk.gephi.exportNodeValues(self.scores[score_name], path, score_name)
         else:
+            #else append a new column to existing file
             path_temp = path + 'temp.csv'
             nk.gephi.exportNodeValues(self.scores[score_name], path_temp, score_name)
 
@@ -117,8 +118,9 @@ class Scores_Calculator:
                 for row in csv_reader:
                     row.append(row[1])
                     csv_writer.writerow(row)
-
-            os.remove(path+'temp.csv')
+            
+            #remove temp.csv 
+            os.remove(path_temp)
 
         self.first_time = False
 
