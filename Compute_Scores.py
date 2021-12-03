@@ -334,6 +334,9 @@ class Scores_Calculator:
         subgraph = nk.graphtools.subgraphFromNodes(self.graph, nodes)
         
         #To automatize the process I would write this line, then, I would reexecute compute scores
-        self.graph = subgraph
-        self.compute_scores()
+        #self.graph = subgraph
+        #self.compute_scores()
+
+        #Now I just return the graph
+        return subgraph
 
