@@ -39,9 +39,12 @@ CS.set_approx(False)   #All the algorithms are no longer approximated
 #CS.set_param_value('betweenness', 'approx', False)
 
 CS.compute_scores()
-print("\nEXACT VERSION:\n")
-print_results(CS)
 
 CS.export_scores("csv/", "betweenness")
 #test new column
-CS.export_scores("csv/", "betweenness")
+CS.export_scores("csv/", "closeness")
+
+print("\nEXACT VERSION:\n")
+print_results(CS)
+
+
