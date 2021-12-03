@@ -52,7 +52,7 @@ class Scores_Calculator:
     params = {
         'betweenness' : {'approx' : True , 'epsilon' : 0.1 , 'delta' : 0.1 , 'normalized' : True},
         'closeness' : {'approx' : True, 'epsilon' : 0.1, 'normalized' : True, 'nSamples' : 10, 'variant' : 1},   #Variant 1 ==> Generalized, 0 ==> Standard (Standard non feasible for disconnected graphs)
-        'degree' : {}
+        'degree' : {'normalized' : True}
     }
 
     #Represent the name of the graph, it will be used to save the computed scores
@@ -181,9 +181,9 @@ class Scores_Calculator:
         if self.params['closeness']['approx']:
             #It requires a connected graph
             #assert self.connected_components()[0] == 1, "Graph not connected, cannot apply approximation\n"
-            ncc = self.connected_components()[0]
+            ncc = self.connected_components()
             if ncc >=2:
-                print("Graph not connected , cannot apply approximation. ( Number of components = ", ncc, ")")
+                print("Graph not connected , cannot apply closeness centrality approximation. ( Number of components = ", ncc, ")")
                 return
             cln = nk.centrality.ApproxCloseness(self.graph, self.graph.numberOfNodes(), self.params['closeness']['epsilon'], self.params['closeness']['normalized'])
         else:
@@ -199,12 +199,28 @@ class Scores_Calculator:
         self.ranking['closeness'] = cln.ranking()
         self.times['closeness'] = (end - start)
 
+
     #Methods that compute the degree centrality of the nodes
+    def degree_centrality(self):
+        #Setup the algorithm
+        dc = nk.centrality.DegreeCentrality(self.graph, self.params['degree']['normalized'])
+
+        #Run the algorithm
+        start = time.time()
+        dc.run()
+        end = time.time()
+
+        #Save the results
+        self.scores['degree'] = dc.scores()
+        self.ranking['degree'] = dc.ranking()
+        self.times['degree'] = end - start
+
 
     #Wrapper method that computes all the scores for a graph
     #To modify to add new scores
     def compute_scores(self):
         self.betweenness_centrality()
         self.closeness_centrality()
+        self.degree_centrality()
 
         return self.scores, self.ranking ,self.times
