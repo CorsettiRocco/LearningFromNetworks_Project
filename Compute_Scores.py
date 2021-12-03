@@ -33,7 +33,8 @@ class Scores_Calculator:
         'degree' : [],
         'eigenvector' : [],
         'page' : [],
-        'clustering' : []
+        'clustering' : [],
+        'katz' : []
     }
 
     #Dict that saves the ranking of each score
@@ -45,7 +46,8 @@ class Scores_Calculator:
         'degree' : [],
         'eigenvector' : [],
         'page' : [],
-        'clustering' : []
+        'clustering' : [],
+        'katz' : []
     }
     
     #Dict that saves the computational time needed by each score
@@ -55,7 +57,8 @@ class Scores_Calculator:
         'degree' : 0,
         'eigenvector' : 0,
         'page' : 0,
-        'clustering' : 0
+        'clustering' : 0,
+        'katz' : 0
     }
 
     #Parameters for the approximated algorithm
@@ -65,7 +68,8 @@ class Scores_Calculator:
         'degree' : {'normalized' : True},
         'eigenvector': {'tolerance' : 1e-9},
         'page' : {'damp' : 0.85, 'tolerance' : 1e-9, 'maxIterations' : -1, 'norm' : 'l2'},
-        'clustering' : {'turbo' : True}
+        'clustering' : {'turbo' : True},
+        'katz' : {'alpha' : 5e-4, 'beta' : 0.1, 'tolerance' : 1e-8}
     }
 
     #Represent the name of the graph, it will be used to save the computed scores
@@ -285,6 +289,23 @@ class Scores_Calculator:
         self.ranking['clustering'] = lcc.ranking()
         self.times['clustering'] = end - start
 
+    
+    #Mehtod that computes the katz centrality
+    def katz_centrality(self):
+        #Setup the algorithm
+        kc = nk.centrality.KatzCentrality(self.graph, self.params['katz']['alpha'], self.params['katz']['beta'], self.params['katz']['tolerance'])
+
+        #Run the algorithm
+        start = time.time()
+        kc.run()
+        end = time.time()
+
+        #Save teh results
+        self.scores['katz'] = kc.scores()
+        self.ranking['katz'] = kc.ranking()
+        self.times['katz'] = end - start
+
+
     #Wrapper method that computes all the scores for a graph
     #To modify to add new scores
     def compute_scores(self):
@@ -294,5 +315,6 @@ class Scores_Calculator:
         self.eigenvector_centrality()
         self.page_rank()
         self.local_clustering_coefficient()
+        self.katz_centrality()
 
         return self.scores, self.ranking ,self.times
