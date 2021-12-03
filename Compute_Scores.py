@@ -130,26 +130,24 @@ class Scores_Calculator:
         else:
             #else append a new column to existing file
             path_temp = path + 'temp.csv'
+            path_original = path+self.name+'.csv'
             nk.gephi.exportNodeValues(self.scores[score_name], path_temp, score_name)
 
             #append new column of score to csv associated with this instance
 
-            write = pd.read_csv(path+self.name+'.csv')
+            write = pd.read_csv(path_original)
             read = pd.read_csv(path_temp)
-
-            print(write)
-            print(read)
 
             write[score_name] = read[score_name]
 
             #remove original 
-            os.remove(path+self.name+'.csv')
+            os.remove(path_original)
 
             #save to csv
-            write.to_csv(path+self.name+'.csv',index=False)
+            write.to_csv(path_original,index=False)
             
             #remove temp.csv 
-            #os.remove(path_temp)   
+            os.remove(path_temp)   
 
 
     #Method that computes the betweenness centrality of a node
