@@ -14,6 +14,7 @@ import pandas as pd
 #   - A method to upload a graph (if already read)
 #   - Some access methods to set the parameters for the computation
 #   - Check the number of connected components (useful for some algorithms that requires connected components) and return the #components
+#   - Create a subgraph that exclude some nodes
 
 #The attributes are:
 #   - The networkit Graph
@@ -318,3 +319,21 @@ class Scores_Calculator:
         self.katz_centrality()
 
         return self.scores, self.ranking ,self.times
+
+
+    #Method that return a subgraph, takes a blacklist of nodes as input
+    def delete_nodes(self, blacklist = None):
+        #Create a list of nodes that do not contains the nodes in the blacklist
+        nodes = [node for node in self.graph.iterNodes()]
+    
+        #Remove the nodes in the blacklist
+        for node in blacklist:
+            nodes.remove(node)
+
+        #Create the subgraph
+        subgraph = nk.graphtools.subgraphFromNodes(self.graph, nodes)
+        
+        #To automatize the process I would write this line, then, I would reexecute compute scores
+        self.graph = subgraph
+        self.compute_scores()
+

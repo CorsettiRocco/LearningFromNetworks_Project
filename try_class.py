@@ -47,4 +47,8 @@ CS.export_scores("csv/", "closeness")
 print("\nEXACT VERSION:\n")
 print_results(CS)
 
+print("\nWITH LESS NODES\n")
+CS.delete_nodes([1170, 1171, 1174])
+print_results(CS)
+
 
