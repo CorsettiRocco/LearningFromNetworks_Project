@@ -14,6 +14,7 @@ import pandas as pd
 #   - A method to upload a graph (if already read)
 #   - Some access methods to set the parameters for the computation
 #   - Check the number of connected components (useful for some algorithms that requires connected components) and return the #components
+#   - Voting rule method to identify most influential nodes
 #   - Create a subgraph that exclude some nodes
 
 #The attributes are:
@@ -21,6 +22,7 @@ import pandas as pd
 #   - Dictionary of attributes for the approximate algorithms
 #   - Dictionary containing list of different scores
 #   - Dictionary containing the execution time needed to compute a score ( statistical information )
+#   - Dictionary containing the results of the voting
 
 class Scores_Calculator:
     #ATTRIBUTES
@@ -74,7 +76,10 @@ class Scores_Calculator:
     }
 
     #voting rule results
-    results_voting_rule = {}
+    results_voting_rule = {
+        'borda_count' : {},
+        'single_count': {}
+    }
 
     #Represent the name of the graph, it will be used to save the computed scores
     name = None
@@ -324,22 +329,39 @@ class Scores_Calculator:
         return self.scores, self.ranking ,self.times
 
     #voting rule to identify the most influential nodes in the network based on the scores(voters) and nodes(candidates)
-    def voting_rule(self,type = 'borda',voters = 5):
+    def voting_rule(self,type = 'borda_count',voters = 5):
 
-        print(self.ranking['betweenness'])
-
-        if type == 'borda':        
+        if type == 'borda_count' or 'all':        
             for ranks in self.ranking:
-                n = voters
                 for i in range(voters):
-                    if str(self.ranking[ranks][i][0]) in self.results_voting_rule:
-                        self.results_voting_rule[str(self.ranking[ranks][i][0])] += n
+                    if str(self.ranking[ranks][i][0]) in self.results_voting_rule['borda_count']:
+                        self.results_voting_rule['borda_count'][str(self.ranking[ranks][i][0])] += (voters - i)
                     else:
-                        self.results_voting_rule[str(self.ranking[ranks][i][0])] = 1
+                        self.results_voting_rule['borda_count'][str(self.ranking[ranks][i][0])] = 1
+        if type == 'single_count' or 'all':
+            for ranks in self.ranking:
+                for i in range(voters):
+                    if str(self.ranking[ranks][i][0]) in self.results_voting_rule['single_count']:
+                        self.results_voting_rule['single_count'][str(self.ranking[ranks][i][0])] += 1
+                    else:
+                        self.results_voting_rule['single_count'][str(self.ranking[ranks][i][0])] = 1
 
-                    n = n-1 
 
+        #sort the voting 
+        for counts in self.results_voting_rule:
+            print(counts)
+            self.results_voting_rule[counts]={k: v for k, v in sorted(self.results_voting_rule[counts].items(), key=lambda item: item[1], reverse = True)}
 
+        df_voting = pd.DataFrame(self.results_voting_rule)
+
+        #save to .csv in /voting_results/
+        df_voting.to_csv('voting_results/'+self.name+'.csv')
+        
+        #print results
+        width = 50
+        print('-'*width)        
+        print(df_voting)
+        print('-'*width)
 
     #Method that return a subgraph, takes a blacklist of nodes as input
     def delete_nodes(self, blacklist = None):

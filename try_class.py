@@ -40,7 +40,7 @@ CS.set_approx(False)   #All the algorithms are no longer approximated
 
 CS.compute_scores()
 
-CS.voting_rule()
+CS.voting_rule(type = 'all')
 
 CS.export_scores("csv/", "betweenness")
 #test new column
@@ -51,6 +51,6 @@ print("\nEXACT VERSION:\n")
 
 print("\nWITH LESS NODES\n")
 CS.delete_nodes([1170, 1171, 1174])
-print_results(CS)
+#print_results(CS)
 
 
