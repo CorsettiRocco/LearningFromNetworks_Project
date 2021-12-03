@@ -140,9 +140,6 @@ class Scores_Calculator:
 
             write[score_name] = read[score_name]
 
-            #remove original 
-            os.remove(path_original)
-
             #save to csv
             write.to_csv(path_original,index=False)
             
