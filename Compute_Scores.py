@@ -12,6 +12,7 @@ import os
 #   - A method to read a file from an edge_list
 #   - A method to upload a graph (if already read)
 #   - Some access methods to set the parameters for the computation
+#   - Check the number of connected components (useful for some algorithms that requires connected components) and return the #components
 
 #The attributes are:
 #   - The networkit Graph
@@ -27,7 +28,8 @@ class Scores_Calculator:
     #Dict that saves all the computed scores
     scores = {
         'betweenness' : [],
-        'closeness' : []
+        'closeness' : [],
+        'degree' : []
     }
 
     #Dict that saves the ranking of each score
@@ -35,19 +37,22 @@ class Scores_Calculator:
     #The list is sorted in a decrescent way, the most important nodes are the first in the list
     ranking = {
         'betweenness' : [],
-        'closeness' : []
+        'closeness' : [],
+        'degree' : []
     }
     
     #Dict that saves the computational time needed by each score
     times = {
         'betweenness' : 0,
-        'closeness' : 0
+        'closeness' : 0,
+        'degree' : 0
     }
 
     #Parameters for the approximated algorithm
     params = {
         'betweenness' : {'approx' : True , 'epsilon' : 0.1 , 'delta' : 0.1 , 'normalized' : True},
-        'closeness' : {'approx' : True, 'epsilon' : 0.1, 'normalized' : True, 'nSamples' : 10, 'variant' : 1}   #Variant 1 ==> Generalized, 0 ==> Standard (Standard non feasible for disconnected graphs)
+        'closeness' : {'approx' : True, 'epsilon' : 0.1, 'normalized' : True, 'nSamples' : 10, 'variant' : 1},   #Variant 1 ==> Generalized, 0 ==> Standard (Standard non feasible for disconnected graphs)
+        'degree' : {}
     }
 
     #Represent the name of the graph, it will be used to save the computed scores
@@ -143,6 +148,14 @@ class Scores_Calculator:
 
         self.first_time = False
 
+    
+    #Method that return the number of connected components of the network
+    def connected_components(self):
+        #Prepare the algorithm
+        cc = nk.components.ConnectedComponents(self.graph)
+        #Run the algorithm
+        cc.run()
+        return  cc.numberOfComponents()
 
     #Method that computes the betweenness centrality of a node
     def betweenness_centrality(self):
@@ -162,10 +175,16 @@ class Scores_Calculator:
         self.ranking['betweenness'] = btw.ranking()
         self.times['betweenness'] = end-start
 
-    #Method that computes the Closeness Centrality of a node        APPROXIMATION CURRENTLY NOT WORKING!!!
+    #Method that computes the Closeness Centrality of the nodes        
     def closeness_centrality(self):
         #If the approx attribute is true, use an approximated version of the algorithm, otherwise the exact one
         if self.params['closeness']['approx']:
+            #It requires a connected graph
+            #assert self.connected_components()[0] == 1, "Graph not connected, cannot apply approximation\n"
+            ncc = self.connected_components()[0]
+            if ncc >=2:
+                print("Graph not connected , cannot apply approximation. ( Number of components = ", ncc, ")")
+                return
             cln = nk.centrality.ApproxCloseness(self.graph, self.graph.numberOfNodes(), self.params['closeness']['epsilon'], self.params['closeness']['normalized'])
         else:
             cln = nk.centrality.Closeness(self.graph, self.params['closeness']['normalized'], self.params['closeness']['variant'])
@@ -178,7 +197,9 @@ class Scores_Calculator:
         #Save the results
         self.scores['closeness'] = cln.scores()
         self.ranking['closeness'] = cln.ranking()
-        self.times['closeness'] = (end - start)   
+        self.times['closeness'] = (end - start)
+
+    #Methods that compute the degree centrality of the nodes
 
     #Wrapper method that computes all the scores for a graph
     #To modify to add new scores
