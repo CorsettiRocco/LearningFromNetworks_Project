@@ -43,6 +43,11 @@ CS.set_approx(False)   #All the algorithms are no longer approximated
 #CS.set_param_value('betweenness', 'approx', False)
 
 scores, ranking, times = CS.compute_scores()
+
+CS.export_scores("csv/", "betweenness")
+#test new column
+CS.export_scores("csv/", "closeness")
+
 scores['betweenness'].sort()
 scores['closeness'].sort()
 print("\nEXACT VERSION:\n")
@@ -53,6 +58,4 @@ print("Best cln scores through ranking: ", ranking['closeness'][:5])
 print("BTW Execution time = ", times['betweenness'], " sec")
 print("CLN Execution time = ", times['closeness'], " sec")
 
-CS.export_scores("csv/", "betweenness")
-#test new column
-CS.export_scores("csv/", "betweenness")
+

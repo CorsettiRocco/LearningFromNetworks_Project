@@ -3,6 +3,7 @@ import networkx as nx
 import time 
 import csv
 import os
+import pandas as pd
 
 #The class provides a way to compute and store some node-scores
 #Provide methods to:
@@ -124,24 +125,31 @@ class Scores_Calculator:
             #if first time create associated csv file
             path = path + self.name +'.csv'                                        
             nk.gephi.exportNodeValues(self.scores[score_name], path, score_name)
+
+            self.first_time = False
         else:
             #else append a new column to existing file
             path_temp = path + 'temp.csv'
             nk.gephi.exportNodeValues(self.scores[score_name], path_temp, score_name)
 
             #append new column of score to csv associated with this instance
-            with open(path_temp,'r') as rd, open(path+self.name+'.csv','w',newline='') as wrt:
-                csv_reader = csv.reader(rd)
-                csv_writer = csv.writer(wrt)
 
-                for row in csv_reader:
-                    row.append(row[1])
-                    csv_writer.writerow(row)
+            write = pd.read_csv(path+self.name+'.csv')
+            read = pd.read_csv(path_temp)
+
+            print(write)
+            print(read)
+
+            write[score_name] = read[score_name]
+
+            #remove original 
+            os.remove(path+self.name+'.csv')
+
+            #save to csv
+            write.to_csv(path+self.name+'.csv',index=False)
             
             #remove temp.csv 
-            os.remove(path_temp)
-
-        self.first_time = False
+            #os.remove(path_temp)   
 
 
     #Method that computes the betweenness centrality of a node
