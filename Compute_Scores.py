@@ -30,7 +30,8 @@ class Scores_Calculator:
     scores = {
         'betweenness' : [],
         'closeness' : [],
-        'degree' : []
+        'degree' : [],
+        'eigenvector' : []
     }
 
     #Dict that saves the ranking of each score
@@ -39,21 +40,24 @@ class Scores_Calculator:
     ranking = {
         'betweenness' : [],
         'closeness' : [],
-        'degree' : []
+        'degree' : [],
+        'eigenvector' : []
     }
     
     #Dict that saves the computational time needed by each score
     times = {
         'betweenness' : 0,
         'closeness' : 0,
-        'degree' : 0
+        'degree' : 0,
+        'eigenvector' : 0
     }
 
     #Parameters for the approximated algorithm
     params = {
         'betweenness' : {'approx' : True , 'epsilon' : 0.1 , 'delta' : 0.1 , 'normalized' : True},
         'closeness' : {'approx' : True, 'epsilon' : 0.1, 'normalized' : True, 'nSamples' : 10, 'variant' : 1},   #Variant 1 ==> Generalized, 0 ==> Standard (Standard non feasible for disconnected graphs)
-        'degree' : {'normalized' : True}
+        'degree' : {'normalized' : True},
+        'eigenvector': {'tolerance' : 1e-9}
     }
 
     #Represent the name of the graph, it will be used to save the computed scores
@@ -219,11 +223,27 @@ class Scores_Calculator:
         self.times['degree'] = end - start
 
 
+    #Mehtods that computes the eigenvector centrality
+    def eigenvector_centrality(self):
+        #Setup algorithm
+        ec = nk.centrality.EigenvectorCentrality(self.graph, self.params['eigenvector']['tolerance'])
+
+        #Run algorithm
+        start = time.time()
+        ec.run()
+        end = time.time()
+
+        #Save results
+        self.scores['eigenvector'] = ec.scores()
+        self.ranking['eigenvector'] = ec.ranking()
+        self.times['eigenvector'] = end - start
+
     #Wrapper method that computes all the scores for a graph
     #To modify to add new scores
     def compute_scores(self):
         self.betweenness_centrality()
         self.closeness_centrality()
         self.degree_centrality()
+        self.eigenvector_centrality()
 
         return self.scores, self.ranking ,self.times
