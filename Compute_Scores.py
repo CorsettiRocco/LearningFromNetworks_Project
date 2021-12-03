@@ -31,7 +31,8 @@ class Scores_Calculator:
         'betweenness' : [],
         'closeness' : [],
         'degree' : [],
-        'eigenvector' : []
+        'eigenvector' : [],
+        'page' : []
     }
 
     #Dict that saves the ranking of each score
@@ -41,7 +42,8 @@ class Scores_Calculator:
         'betweenness' : [],
         'closeness' : [],
         'degree' : [],
-        'eigenvector' : []
+        'eigenvector' : [],
+        'page' : []
     }
     
     #Dict that saves the computational time needed by each score
@@ -49,7 +51,8 @@ class Scores_Calculator:
         'betweenness' : 0,
         'closeness' : 0,
         'degree' : 0,
-        'eigenvector' : 0
+        'eigenvector' : 0,
+        'page' : 0
     }
 
     #Parameters for the approximated algorithm
@@ -57,7 +60,8 @@ class Scores_Calculator:
         'betweenness' : {'approx' : True , 'epsilon' : 0.1 , 'delta' : 0.1 , 'normalized' : True},
         'closeness' : {'approx' : True, 'epsilon' : 0.1, 'normalized' : True, 'nSamples' : 10, 'variant' : 1},   #Variant 1 ==> Generalized, 0 ==> Standard (Standard non feasible for disconnected graphs)
         'degree' : {'normalized' : True},
-        'eigenvector': {'tolerance' : 1e-9}
+        'eigenvector': {'tolerance' : 1e-9},
+        'page' : {'damp' : 0.85, 'tolerance' : 1e-9, 'maxIterations' : -1, 'norm' : nk.centrality.Norm.l2norm}
     }
 
     #Represent the name of the graph, it will be used to save the computed scores
@@ -238,6 +242,26 @@ class Scores_Calculator:
         self.ranking['eigenvector'] = ec.ranking()
         self.times['eigenvector'] = end - start
 
+
+    #Methods that compute the page rank score
+    def page_rank(self):
+        #setup the algorithm
+        pr = nk.centrality.PageRank(self.graph, self.params['page']['damp'], self.params['page']['tolerance'])
+        #Set max iters only if modified, otherwise default
+        if self.params['page']['maxIterations'] != -1:
+            pr.maxIterations = self.params['page']['maxIterations']
+        pr.norm = self.params['page']['norm']
+
+        #Run the algorithm
+        start = time.time()
+        pr.run()
+        end = time.time()
+
+        #Save the results
+        self.scores['page'] = pr.scores()
+        self.ranking['page'] = pr.ranking()
+        self.times['page'] = end - start
+
     #Wrapper method that computes all the scores for a graph
     #To modify to add new scores
     def compute_scores(self):
@@ -245,5 +269,6 @@ class Scores_Calculator:
         self.closeness_centrality()
         self.degree_centrality()
         self.eigenvector_centrality()
+        self.page_rank()
 
         return self.scores, self.ranking ,self.times
