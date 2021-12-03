@@ -40,11 +40,13 @@ CS.set_approx(False)   #All the algorithms are no longer approximated
 
 CS.compute_scores()
 
+CS.voting_rule()
+
 CS.export_scores("csv/", "betweenness")
 #test new column
 CS.export_scores("csv/", "closeness")
 
 print("\nEXACT VERSION:\n")
-print_results(CS)
+#print_results(CS)
 
 

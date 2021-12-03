@@ -318,3 +318,25 @@ class Scores_Calculator:
         self.katz_centrality()
 
         return self.scores, self.ranking ,self.times
+
+    #voting rule to identify the most influential nodes in the network based on the scores(voters) and nodes(candidates)
+    def voting_rule(self,type = 'borda',voters = 5):
+
+        print(self.ranking['betweenness'])
+
+        if type == 'borda':
+
+            results = {}
+            
+            for ranks in self.ranking:
+                n = voters
+                for i in range(voters):
+                    if str(self.ranking[ranks][i][0]) in results:
+                        results[str(self.ranking[ranks][i][0])] += n
+                    else:
+                        results[str(self.ranking[ranks][i][0])] = 1
+
+                    n = n-1 
+                    
+
+        print(results)
