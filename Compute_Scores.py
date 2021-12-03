@@ -61,7 +61,7 @@ class Scores_Calculator:
         'closeness' : {'approx' : True, 'epsilon' : 0.1, 'normalized' : True, 'nSamples' : 10, 'variant' : 1},   #Variant 1 ==> Generalized, 0 ==> Standard (Standard non feasible for disconnected graphs)
         'degree' : {'normalized' : True},
         'eigenvector': {'tolerance' : 1e-9},
-        'page' : {'damp' : 0.85, 'tolerance' : 1e-9, 'maxIterations' : -1, 'norm' : nk.centrality.Norm.l2norm}
+        'page' : {'damp' : 0.85, 'tolerance' : 1e-9, 'maxIterations' : -1, 'norm' : 'l2'}
     }
 
     #Represent the name of the graph, it will be used to save the computed scores
@@ -250,7 +250,10 @@ class Scores_Calculator:
         #Set max iters only if modified, otherwise default
         if self.params['page']['maxIterations'] != -1:
             pr.maxIterations = self.params['page']['maxIterations']
-        pr.norm = self.params['page']['norm']
+        if self.params['page']['norm'] == 'l1':
+            pr.norm = nk.centrality.Norm.l1norm
+        else:
+            pr.norm = nk.centrality.Norm.l2norm
 
         #Run the algorithm
         start = time.time()
