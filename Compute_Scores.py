@@ -73,6 +73,9 @@ class Scores_Calculator:
         'katz' : {'alpha' : 5e-4, 'beta' : 0.1, 'tolerance' : 1e-8}
     }
 
+    #voting rule results
+    results_voting_rule = {}
+
     #Represent the name of the graph, it will be used to save the computed scores
     name = None
 
@@ -325,22 +328,17 @@ class Scores_Calculator:
 
         print(self.ranking['betweenness'])
 
-        if type == 'borda':
-
-            results = {}
-            
+        if type == 'borda':        
             for ranks in self.ranking:
                 n = voters
                 for i in range(voters):
-                    if str(self.ranking[ranks][i][0]) in results:
-                        results[str(self.ranking[ranks][i][0])] += n
+                    if str(self.ranking[ranks][i][0]) in self.results_voting_rule:
+                        self.results_voting_rule[str(self.ranking[ranks][i][0])] += n
                     else:
-                        results[str(self.ranking[ranks][i][0])] = 1
+                        self.results_voting_rule[str(self.ranking[ranks][i][0])] = 1
 
                     n = n-1 
-                    
 
-        print(results)
 
 
     #Method that return a subgraph, takes a blacklist of nodes as input
