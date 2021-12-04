@@ -355,7 +355,7 @@ class Scores_Calculator:
         df_voting = pd.DataFrame(self.results_voting_rule)
 
         #save to .csv in /voting_results/
-        df_voting.to_csv('voting_results/'+self.name+'.csv')
+        df_voting.to_csv('voting_results/'+'votes_'+self.name+'.csv')
         
         #print results
         width = 50
