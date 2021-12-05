@@ -78,7 +78,8 @@ class Scores_Calculator:
     #voting rule results
     results_voting_rule = {
         'borda_count' : {},
-        'single_count': {}
+        'single_count': {},
+        'majority_count': {}
     }
 
     #Represent the name of the graph, it will be used to save the computed scores
@@ -329,28 +330,42 @@ class Scores_Calculator:
         return self.scores, self.ranking ,self.times
 
     #voting rule to identify the most influential nodes in the network based on the scores(voters) and nodes(candidates)
-    def voting_rule(self,type = 'borda_count',voters = 5):
+    def voting_rule(self,type = 'borda_count',candidates = 5):
 
+        #points are assigned based on the ranking of the size of candidates( equal to 5 by default)
         if type == 'borda_count' or 'all':        
             for ranks in self.ranking:
-                for i in range(voters):
+                for i in range(candidates):
                     if str(self.ranking[ranks][i][0]) in self.results_voting_rule['borda_count']:
-                        self.results_voting_rule['borda_count'][str(self.ranking[ranks][i][0])] += (voters - i)
+                        self.results_voting_rule['borda_count'][str(self.ranking[ranks][i][0])] += (candidates - i)
                     else:
                         self.results_voting_rule['borda_count'][str(self.ranking[ranks][i][0])] = 1
+        #each candidate receive a single point if it is in the top 5
         if type == 'single_count' or 'all':
             for ranks in self.ranking:
-                for i in range(voters):
+                for i in range(candidates):
                     if str(self.ranking[ranks][i][0]) in self.results_voting_rule['single_count']:
                         self.results_voting_rule['single_count'][str(self.ranking[ranks][i][0])] += 1
                     else:
                         self.results_voting_rule['single_count'][str(self.ranking[ranks][i][0])] = 1
-
+        #each voter votes for the most prefered candidate, if the candidate receives more then of the majority of voters it is selected
+        if type == 'majority_count' or 'all':
+            for ranks in self.ranking:
+                if str(self.ranking[ranks][0][0]) in self.results_voting_rule['majority_count']:
+                    self.results_voting_rule['majority_count'][str(self.ranking[ranks][0][0])] += 1
+                else:
+                    self.results_voting_rule['majority_count'][str(self.ranking[ranks][0][0])] = 1
+                
 
         #sort the voting 
         for counts in self.results_voting_rule:
-            print(counts)
             self.results_voting_rule[counts]={k: v for k, v in sorted(self.results_voting_rule[counts].items(), key=lambda item: item[1], reverse = True)}
+
+        if (list(self.results_voting_rule['majority_count'].values())[0] >= len(self.ranking)) and (type == 'majority_count' or 'all'):
+            print('Node: ',list(self.results_voting_rule['majority_count'].keys)[0],' wins the majority with ',\
+            list(self.results_voting_rule['majority_count'].keys)[0],' votes')
+        else:
+            print('No majority voting rule winner')
 
         df_voting = pd.DataFrame(self.results_voting_rule)
 
@@ -358,7 +373,11 @@ class Scores_Calculator:
         df_voting.to_csv('voting_results/'+'votes_'+self.name+'.csv')
         
         #print results
-        width = 50
+        if type == 'all':
+            width = 48
+        else:
+            width = 18
+
         print('-'*width)        
         print(df_voting)
         print('-'*width)
