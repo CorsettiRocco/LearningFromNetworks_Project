@@ -64,7 +64,8 @@ class Scores_Calculator:
         'katz' : 0
     }
 
-    #Parameters for the approximated algorithm
+    #Parameters for the algorithm
+    #Used even for different algorithm, in this way there is a unique access method
     params = {
         'betweenness' : {'approx' : True , 'epsilon' : 0.1 , 'delta' : 0.1 , 'normalized' : True},
         'closeness' : {'approx' : True, 'epsilon' : 0.1, 'normalized' : True, 'nSamples' : 10, 'variant' : 1},   #Variant 1 ==> Generalized, 0 ==> Standard (Standard non feasible for disconnected graphs)
@@ -72,7 +73,8 @@ class Scores_Calculator:
         'eigenvector': {'tolerance' : 1e-9},
         'page' : {'damp' : 0.85, 'tolerance' : 1e-9, 'maxIterations' : -1, 'norm' : 'l2'},
         'clustering' : {'turbo' : True},
-        'katz' : {'alpha' : 5e-4, 'beta' : 0.1, 'tolerance' : 1e-8}
+        'katz' : {'alpha' : 5e-4, 'beta' : 0.1, 'tolerance' : 1e-8},
+        'choose_candidate' : {'voting_rule' : 'borda_rule', 'candidates' : 5, 'random' : False, 'random_range' : 5}   #Used to select the nodes to remove
     }
 
     #voting rule results
@@ -330,7 +332,11 @@ class Scores_Calculator:
         return self.scores, self.ranking ,self.times
 
     #voting rule to identify the most influential nodes in the network based on the scores(voters) and nodes(candidates)
-    def voting_rule(self,type = 'borda_count',candidates = 5):
+    def voting_rule(self, type = 'borda_count', candidates = 5):
+
+        #Keep track of the params considered to keep consistency in the methods
+        self.params['choose_candidate']['voting_rule'] = type
+        self.params['choose_candidate']['candidates'] = candidates
 
         #points are assigned based on the ranking of the size of candidates( equal to 5 by default)
         if type == 'borda_count' or 'all':        
@@ -382,11 +388,27 @@ class Scores_Calculator:
         print(df_voting)
         print('-'*width)
 
+    
+    #Method that can be used to choose some nodes to be eliminated in an automatic way
+    #It will choose, by default, the most important node using the voting rule
+    #It could choose more nodes to remove
+    #It could choose randomly n_candidates to remove from random_range of ranked nodes
+    def choose_candidates(self):
+        #Sort the nodes using the voting rule
+        self.voting_rule()
+
+        blacklist = []
+
+        #If random is false, select the first #candidates nodes
+        if self.params['choose_candidate']['random'] == False:
+            blacklist = self.results_voting_rule[ self.params['choose_candidate']['voting_rule'] ]
+
+
     #Method that return a subgraph, takes a blacklist of nodes as input
-    def delete_nodes(self, blacklist = None):
+    def delete_nodes(self, blacklist = None, most_important = True):
         #Create a list of nodes that do not contains the nodes in the blacklist
         nodes = [node for node in self.graph.iterNodes()]
-    
+
         #Remove the nodes in the blacklist
         for node in blacklist:
             nodes.remove(node)
