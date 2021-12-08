@@ -88,6 +88,9 @@ class Scores_Calculator:
     #Attribute used to manage the correct saving of the scores in the csv file
     first_time = None
 
+    #Majority vote rule winner
+    majority_winner = None
+
     #METHODS
 
     #Constructor with optional graph as parameter
@@ -361,15 +364,17 @@ class Scores_Calculator:
         for counts in self.results_voting_rule:
             self.results_voting_rule[counts]={k: v for k, v in sorted(self.results_voting_rule[counts].items(), key=lambda item: item[1], reverse = True)}
 
+        #evaluate if a majority winner exists
         if (list(self.results_voting_rule['majority_count'].values())[0] >= len(self.ranking)) and (type == 'majority_count' or 'all'):
             print('Node: ',list(self.results_voting_rule['majority_count'].keys)[0],' wins the majority with ',\
             list(self.results_voting_rule['majority_count'].keys)[0],' votes')
+            self.majority_winner = int(list(self.results_voting_rule['majority_count'].keys)[0])
         else:
             print('No majority voting rule winner')
 
         df_voting = pd.DataFrame(self.results_voting_rule)
 
-        #save to .csv in /voting_results/
+        #save to .csv in './voting_results/'
         df_voting.to_csv('voting_results/'+'votes_'+self.name+'.csv')
         
         #print results
