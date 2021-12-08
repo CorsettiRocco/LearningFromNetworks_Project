@@ -4,6 +4,7 @@ import time
 import csv
 import os
 import pandas as pd
+from random import randint
 
 #The class provides a way to compute and store some node-scores
 #Provide methods to:
@@ -64,7 +65,8 @@ class Scores_Calculator:
         'katz' : 0
     }
 
-    #Parameters for the approximated algorithm
+    #Parameters for the algorithm
+    #Used even for different algorithm, in this way there is a unique access method
     params = {
         'betweenness' : {'approx' : True , 'epsilon' : 0.1 , 'delta' : 0.1 , 'normalized' : True},
         'closeness' : {'approx' : True, 'epsilon' : 0.1, 'normalized' : True, 'nSamples' : 10, 'variant' : 1},   #Variant 1 ==> Generalized, 0 ==> Standard (Standard non feasible for disconnected graphs)
@@ -72,7 +74,8 @@ class Scores_Calculator:
         'eigenvector': {'tolerance' : 1e-9},
         'page' : {'damp' : 0.85, 'tolerance' : 1e-9, 'maxIterations' : -1, 'norm' : 'l2'},
         'clustering' : {'turbo' : True},
-        'katz' : {'alpha' : 5e-4, 'beta' : 0.1, 'tolerance' : 1e-8}
+        'katz' : {'alpha' : 5e-4, 'beta' : 0.1, 'tolerance' : 1e-8},
+        'choose_candidate' : {'voting_rule' : 'borda_count', 'selected' : 1 ,'candidates' : 5, 'random' : False, 'random_range' : 5}   #Used to select the nodes to remove
     }
 
     #voting rule results
@@ -94,12 +97,12 @@ class Scores_Calculator:
     #METHODS
 
     #Constructor with optional graph as parameter
-    def __init__(self, g = None, weighted = False ,network_x = False,name = ''):
-        if g != None:
+    def __init__(self, graph = None, weighted = False , network_x = False, name = ''):
+        if graph != None:
             if network_x:
-                self.graph = nk.nxadapter.nx2nk(g)
+                self.graph = nk.nxadapter.nx2nk(graph)
             else:
-                self.graph = g
+                self.graph = graph
             if weighted:
                 self.graph = nk.graphtools.toWeighted(self.graph)
         
@@ -137,7 +140,11 @@ class Scores_Calculator:
 
     #Method that returns the scores and the times
     def get_results(self):
-        return self.scores, self.ranking,self.times
+        return self.scores, self.ranking, self.times, self.results_voting_rule
+
+    #Method that returns the graph
+    def get_graph(self):
+        return self.graph
 
     #Method that enable/disable the approximation for each algorithm
     def set_approx(self, approx):
@@ -332,8 +339,16 @@ class Scores_Calculator:
 
         return self.scores, self.ranking ,self.times
 
+    #Problem with the approximated computation ( Closeness centrality in its approximated version isn't always computable
+    #       when this happen the method fail ) [Try using the try_class.py file removing set_approx(False)]
+    #Problem when the majority vote has a winner (it happend with random elimination, hence is difficult to have the error)
+    #       [To try to have the error, delete the '#' in the 2 lines before the creation of the subgraph and execute some times, ti should happe]
     #voting rule to identify the most influential nodes in the network based on the scores(voters) and nodes(candidates)
-    def voting_rule(self,type = 'borda_count',candidates = 5):
+    def voting_rule(self, type = 'borda_count', candidates = 5, print_res = True):
+
+        #Keep track of the params considered to keep consistency in the methods
+        self.params['choose_candidate']['voting_rule'] = type
+        self.params['choose_candidate']['candidates'] = candidates
 
         #points are assigned based on the ranking of the size of candidates( equal to 5 by default)
         if type == 'borda_count' or 'all':        
@@ -383,18 +398,65 @@ class Scores_Calculator:
         else:
             width = 18
 
-        print('-'*width)        
-        print(df_voting)
-        print('-'*width)
+        if print_res:
+            print('-'*width)        
+            print(df_voting)
+            print('-'*width)
+
+        return self.results_voting_rule
+
+    
+    #Method that can be used to choose some nodes to be eliminated in an automatic way
+    #It will choose, by default, the most important node using the voting rule
+    #It could choose more nodes to remove
+    #It could choose randomly n_candidates to remove from random_range of ranked nodes
+    def choose_candidates(self):
+        #If voting_rule = 'all', set Borda Count by default
+        if self.params['choose_candidate']['voting_rule'] == 'all':
+            self.params['choose_candidate']['voting_rule'] = 'borda_count'
+
+        blacklist = []
+        keys = list(self.results_voting_rule[ self.params['choose_candidate']['voting_rule'] ].keys())
+
+        #If random is false, select the first #candidates nodes
+        if self.params['choose_candidate']['random'] == False:
+            blacklist = keys[ : self.params['choose_candidate']['candidates'] ]
+        else:   #Select #candidates randomly from the first random_range elements
+            #Check random range
+            if self.params['choose_candidate']['random_range'] > self.params['choose_candidate']['candidates']:
+                self.params['choose_candidate']['random_range'] = self.params['choose_candidate']['candidates']
+            #Restrict the keys list
+            keys = keys[:self.params['choose_candidate']['random_range']]
+            #Select #candidates
+            for i in range(self.params['choose_candidate']['candidates']):
+                rand = randint(0, len(keys) - 1)
+                while keys[rand] in blacklist:
+                    rand = randint(0, len(keys) - 1)
+                blacklist.append(keys[rand])
+
+        #Check consistency between selected and candidates
+        if self.params['choose_candidate']['selected'] > self.params['choose_candidate']['candidates']:
+            self.params['choose_candidate']['selected'] = self.params['choose_candidate']['candidates']
+
+        #Return the blacklist, it will be only used inside the class
+        return blacklist[:self.params['choose_candidate']['selected']]
+
+
+
+
 
     #Method that return a subgraph, takes a blacklist of nodes as input
     def delete_nodes(self, blacklist = None):
         #Create a list of nodes that do not contains the nodes in the blacklist
         nodes = [node for node in self.graph.iterNodes()]
-    
+
+        #If the blacklist isn't set, set it
+        if blacklist == None:
+            blacklist = self.choose_candidates()
+
         #Remove the nodes in the blacklist
         for node in blacklist:
-            nodes.remove(node)
+            nodes.remove(int(node))
 
         #Create the subgraph
         subgraph = nk.graphtools.subgraphFromNodes(self.graph, nodes)
@@ -405,4 +467,13 @@ class Scores_Calculator:
 
         #Now I just return the graph
         return subgraph
+
+
+    def print_results(self):
+        for key in self.ranking:
+            print("Best ", key, " scores: ", self.ranking[key][:5])
+            print(key," execution time = ", self.times[key], " sec")
+            print("\n")
+
+        
 
