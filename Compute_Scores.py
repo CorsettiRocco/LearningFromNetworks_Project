@@ -381,9 +381,9 @@ class Scores_Calculator:
 
         #evaluate if a majority winner exists
         if (list(self.results_voting_rule['majority_count'].values())[0] >= len(self.ranking)) and (type == 'majority_count' or 'all'):
-            print('Node: ',list(self.results_voting_rule['majority_count'].keys)[0],' wins the majority with ',\
-            list(self.results_voting_rule['majority_count'].keys)[0],' votes')
-            self.majority_winner = int(list(self.results_voting_rule['majority_count'].keys)[0])
+            print('Node: ',list(self.results_voting_rule['majority_count'].keys())[0],' wins the majority with ',\
+            list(self.results_voting_rule['majority_count'].values())[0],' votes')
+            self.majority_winner = int(list(self.results_voting_rule['majority_count'].keys())[0])
         else:
             print('No majority voting rule winner')
 
