@@ -94,6 +94,9 @@ class Scores_Calculator:
     #Majority vote rule winner
     majority_winner = None
 
+    #Blacklist = List of nodes that will be eliminated
+    blacklist = []
+
     #METHODS
 
     #Constructor with optional graph as parameter
@@ -438,8 +441,8 @@ class Scores_Calculator:
         if self.params['choose_candidate']['selected'] > self.params['choose_candidate']['candidates']:
             self.params['choose_candidate']['selected'] = self.params['choose_candidate']['candidates']
 
-        #Return the blacklist, it will be only used inside the class
-        return blacklist[:self.params['choose_candidate']['selected']]
+        #Save the blacklist
+        self.blacklist = blacklist[:self.params['choose_candidate']['selected']]
 
 
 
@@ -452,7 +455,8 @@ class Scores_Calculator:
 
         #If the blacklist isn't set, set it
         if blacklist == None:
-            blacklist = self.choose_candidates()
+            self.choose_candidates()
+            blacklist = self.blacklist
 
         #Remove the nodes in the blacklist
         for node in blacklist:

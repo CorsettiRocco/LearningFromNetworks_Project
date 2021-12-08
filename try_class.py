@@ -18,8 +18,8 @@ rvr = CS.voting_rule(type = 'borda_count', print_res = False)
 print(rvr['borda_count'].keys())
 
 #Remove node(s)
-#CS.set_param_value('choose_candidate', 'random', True)
-#CS.set_param_value('choose_candidate', 'selected', 3)
+CS.set_param_value('choose_candidate', 'random', True)
+CS.set_param_value('choose_candidate', 'selected', 3)
 subgraph = CS.delete_nodes()
 
 #Recompute scores and analyze
