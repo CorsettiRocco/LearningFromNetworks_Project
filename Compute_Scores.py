@@ -115,10 +115,12 @@ class Scores_Calculator:
         self.name = name
 
     #Method that reads a text file containing an edge_list and initialize the corresponding networkit graph
-    def read_text_graph(self, file_path, weighted = False, format = nk.Format.EdgeListSpaceZero):
+    def read_text_graph(self, file_path, weighted = False, format = nk.Format.EdgeListSpaceZero, name = ''):
         self.graph = nk.readGraph(file_path, format)
         if weighted:
             self.graph = nk.graphtools.toWeighted(self.graph)
+        #set instance name used for csv file set and retrivial
+        self.name = name
 
     #Method to set the graph in the class
     def set_graph(self, g, weighted = False, network_x = False):
