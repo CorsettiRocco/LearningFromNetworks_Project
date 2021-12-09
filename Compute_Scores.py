@@ -331,16 +331,23 @@ class Scores_Calculator:
         self.times['katz'] = end - start
 
 
-    #Wrapper method that computes all the scores for a graph
+    #Wrapper method that computes and saves in csv format all the scores for a graph
     #To modify to add new scores
     def compute_scores(self):
         self.betweenness_centrality()
+        self.export_scores('csv/','betweenness')
         self.closeness_centrality()
+        self.export_scores('csv/','closeness')
         self.degree_centrality()
+        self.export_scores('csv/','degree')
         self.eigenvector_centrality()
+        self.export_scores('csv/','eigenvector')
         self.page_rank()
+        self.export_scores('csv/','page')
         self.local_clustering_coefficient()
+        self.export_scores('csv/','clustering')
         self.katz_centrality()
+        self.export_scores('csv/','katz')
 
         return self.scores, self.ranking ,self.times
 
@@ -354,6 +361,11 @@ class Scores_Calculator:
         #Keep track of the params considered to keep consistency in the methods
         self.params['choose_candidate']['voting_rule'] = type
         self.params['choose_candidate']['candidates'] = candidates
+
+        #remove closeness centrality if graph is disconnected and the approximation is set True
+        if self.params['closeness']['approx'] is True:
+            if self.connected_components > 1 :
+                self.ranking.pop('closeness')
 
         #points are assigned based on the ranking of the size of candidates( equal to 5 by default)
         if type == 'borda_count' or 'all':        
@@ -483,4 +495,5 @@ class Scores_Calculator:
             print("\n")
 
         
-
+    def print_name(self):
+        print(self.name)

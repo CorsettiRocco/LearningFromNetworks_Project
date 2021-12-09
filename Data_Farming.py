@@ -1,4 +1,11 @@
 from Compute_Scores import Scores_Calculator
+import pandas as pd
+
+
+#method for computing and ssaving score differences
+def scores_diff(black_list,pre_elem_data,post_elem_data):
+    pass
+
 
 def find(element, element_list):
     for i in range(len(element_list)):
@@ -15,16 +22,39 @@ def improved_nodes(best_nodes, best_sub_nodes):
     return improved
 
 
+#generate name from path
+def generate_name(path):
+    list_of_names = []
+    n=len(path)-1
+    for i in range(n,0,-1):
+        if(path[i] == '.'):
+            end = i
+        if(path[i] == '/'):
+            start = i + 1
+            break
+
+    name=path[start: end:]
+
+    list_of_names.append('pre_elem_'+name)
+    list_of_names.append('post_elem_'+name)
+
+    return list_of_names
+
+
 #MAIN PIPELINE
 
 #Input phase ( Insert different graphs )
-graph_list = ["Test/Graphs/prova_grafo_piccolo.edges"]  #Add more here
+graph_list = ['Test/Graphs/prova_grafo_piccolo.edges']  #Add more here
+
+generate_name(graph_list[0])
 
 #Computation
 #I dind't know how to automatize the name choice =)
 for g in graph_list:
+    list_of_names = generate_name(g)
     #Create a new object each time to avoid problems
-    CS = Scores_Calculator()
+    CS = Scores_Calculator(name = list_of_names[0])
+    CS.print_name()
     #Read the graph and compute the scores and the rank
     CS.read_text_graph(g) 
     CS.set_approx(False)    #To remove in the future, after the correction of voting_rule
@@ -36,7 +66,8 @@ for g in graph_list:
     subgraph = CS.delete_nodes()
    
     #Create a new class that takes the subgraph as input and redo calculations
-    CS_sub = Scores_Calculator(graph = subgraph)
+    CS_sub = Scores_Calculator(graph = subgraph,name = list_of_names[1])
+    CS_sub.print_name()
     CS_sub.set_approx(False)
     CS_sub.compute_scores()
     res = CS_sub.voting_rule(print_res = False)
