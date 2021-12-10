@@ -7,7 +7,7 @@ from Compute_Scores import Scores_Calculator
 #ENTIRE PIPELINE
 
 #Init
-CS = Scores_Calculator(name='btw_small_graph')
+CS = Scores_Calculator(name='pre_elem_btw_small_graph')
 CS.read_text_graph("Test/Graphs/prova_grafo_piccolo.edges")
 
 #Compute scores and analyze

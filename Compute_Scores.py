@@ -115,12 +115,11 @@ class Scores_Calculator:
         self.name = name
 
     #Method that reads a text file containing an edge_list and initialize the corresponding networkit graph
-    def read_text_graph(self, file_path, weighted = False, format = nk.Format.EdgeListSpaceZero, name = ''):
+    def read_text_graph(self, file_path, weighted = False, format = nk.Format.EdgeListSpaceZero):
         self.graph = nk.readGraph(file_path, format)
         if weighted:
             self.graph = nk.graphtools.toWeighted(self.graph)
-        #set instance name used for csv file set and retrivial
-        self.name = name
+
 
     #Method to set the graph in the class
     def set_graph(self, g, weighted = False, network_x = False):
@@ -169,7 +168,7 @@ class Scores_Calculator:
 
         if self.first_time:
             #if first time create associated csv file
-            path = path + self.name +'.csv'                                        
+            path = path + self.name +'.csv'                                    
             nk.gephi.exportNodeValues(self.scores[score_name], path, score_name)
 
             self.first_time = False
@@ -494,6 +493,5 @@ class Scores_Calculator:
             print(key," execution time = ", self.times[key], " sec")
             print("\n")
 
-        
-    def print_name(self):
-        print(self.name)
+    def return_blacklist(self):
+        return self.blacklist

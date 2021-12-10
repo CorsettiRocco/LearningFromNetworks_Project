@@ -3,8 +3,31 @@ import pandas as pd
 
 
 #method for computing and ssaving score differences
-def scores_diff(black_list,pre_elem_data,post_elem_data):
-    pass
+def scores_diff(black_list,pre_elem_data,post_elem_data,name):
+
+    print('blacklist',black_list)
+    #load dataframes from csv files
+    pre_sc_df = pd.read_csv(pre_elem_data)
+    post_sc_df = pd.read_csv(post_elem_data)
+
+    #drop rows of black list
+    pre_sc_df=pre_sc_df.drop(labels = [(int(x)) for x in black_list],axis=0)
+    post_sc_df=post_sc_df.drop(labels = [(int(x)) for x in black_list],axis=0)
+
+    cols = list(pre_sc_df.columns)
+
+    scores_diff_df = pd.DataFrame(columns = cols)
+
+    #column id 
+    scores_diff_df['id'] = pre_sc_df['id']
+
+    #score difference
+    cols.remove('id')
+    for i in cols:
+        scores_diff_df[i] = (pre_sc_df[i] - post_sc_df[i])**2
+
+    scores_diff_df.to_csv('scores_diff/'+name,index = False)
+    
 
 
 def find(element, element_list):
@@ -37,6 +60,7 @@ def generate_name(path):
 
     list_of_names.append('pre_elem_'+name)
     list_of_names.append('post_elem_'+name)
+    list_of_names.append('diff_scores_'+name)
 
     return list_of_names
 
@@ -46,15 +70,12 @@ def generate_name(path):
 #Input phase ( Insert different graphs )
 graph_list = ['Test/Graphs/prova_grafo_piccolo.edges']  #Add more here
 
-generate_name(graph_list[0])
-
 #Computation
 #I dind't know how to automatize the name choice =)
 for g in graph_list:
     list_of_names = generate_name(g)
     #Create a new object each time to avoid problems
     CS = Scores_Calculator(name = list_of_names[0])
-    CS.print_name()
     #Read the graph and compute the scores and the rank
     CS.read_text_graph(g) 
     CS.set_approx(False)    #To remove in the future, after the correction of voting_rule
@@ -67,11 +88,12 @@ for g in graph_list:
    
     #Create a new class that takes the subgraph as input and redo calculations
     CS_sub = Scores_Calculator(graph = subgraph,name = list_of_names[1])
-    CS_sub.print_name()
     CS_sub.set_approx(False)
     CS_sub.compute_scores()
     res = CS_sub.voting_rule(print_res = False)
     results_sub = res.copy()
+
+    scores_diff(CS.return_blacklist(),'csv/'+list_of_names[0]+'.csv','csv/'+list_of_names[1]+'.csv',list_of_names[2])
 
     #Example of results printing
     print(list(results['borda_count'].keys()))
