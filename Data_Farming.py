@@ -2,10 +2,10 @@ from Compute_Scores import Scores_Calculator
 import pandas as pd
 
 
-#method for computing and ssaving score differences
+#method for computing and saving scores differences
+#diff: (sc0 - sc1)^2
 def scores_diff(black_list,pre_elem_data,post_elem_data,name):
 
-    print('blacklist',black_list)
     #load dataframes from csv files
     pre_sc_df = pd.read_csv(pre_elem_data)
     post_sc_df = pd.read_csv(post_elem_data)
@@ -26,6 +26,7 @@ def scores_diff(black_list,pre_elem_data,post_elem_data,name):
     for i in cols:
         scores_diff_df[i] = (pre_sc_df[i] - post_sc_df[i])**2
 
+    #save inside scores_diff folder
     scores_diff_df.to_csv('scores_diff/'+name,index = False)
     
 
@@ -93,6 +94,7 @@ for g in graph_list:
     res = CS_sub.voting_rule(print_res = False)
     results_sub = res.copy()
 
+    #Compute scores difference
     scores_diff(CS.return_blacklist(),'csv/'+list_of_names[0]+'.csv','csv/'+list_of_names[1]+'.csv',list_of_names[2])
 
     #Example of results printing
