@@ -7,12 +7,11 @@ from Compute_Scores import Scores_Calculator
 #ENTIRE PIPELINE
 
 #Init
-CS = Scores_Calculator(name='pre_elem_btw_small_graph')
-CS.read_text_graph("Test/Graphs/prova_grafo_piccolo.edges")
+CS = Scores_Calculator(name='road-italy-osm')
+CS.read_text_graph("Graphs/road-italy-osm.edges")
 
-#Compute scores and analyze
-CS.set_approx(False)                                        
-CS.compute_scores()
+#Compute scores and analyze                                      
+CS.compute_scores(print_log = True)
 #CS.print_results()
 rvr = CS.voting_rule(type = 'borda_count', print_res = False)
 print(rvr['borda_count'].keys())
@@ -20,15 +19,15 @@ print(rvr['borda_count'].keys())
 #Remove node(s)
 #CS.set_param_value('choose_candidate', 'random', True)
 #CS.set_param_value('choose_candidate', 'selected', 3)
-subgraph = CS.delete_nodes()
+#subgraph = CS.delete_nodes()
 
 #Recompute scores and analyze
-CS_sub = Scores_Calculator(graph = subgraph, name = 'btw_small_subgraph')
-CS_sub.set_approx(False)
-CS_sub.compute_scores()
+#CS_sub = Scores_Calculator(graph = subgraph, name = 'btw_small_subgraph')
+#CS_sub.set_approx(False)
+#CS_sub.compute_scores()
 #CS_sub.print_results()
-rvr_sub = CS_sub.voting_rule(type = 'borda_count', print_res = False)
-print(rvr_sub['borda_count'].keys())
+#rvr_sub = CS_sub.voting_rule(type = 'borda_count', print_res = False)
+#print(rvr_sub['borda_count'].keys())
 
 
 

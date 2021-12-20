@@ -225,7 +225,7 @@ class Scores_Calculator:
             #It requires a connected graph
             #assert self.connected_components()[0] == 1, "Graph not connected, cannot apply approximation\n"
             ncc = self.connected_components()
-            if ncc >=2:
+            if ncc >= 2:
                 print("Graph not connected , cannot apply closeness centrality approximation. ( Number of components = ", ncc, ")")
                 return
             cln = nk.centrality.ApproxCloseness(self.graph, self.graph.numberOfNodes(), self.params['closeness']['epsilon'], self.params['closeness']['normalized'])
@@ -332,21 +332,73 @@ class Scores_Calculator:
 
     #Wrapper method that computes and saves in csv format all the scores for a graph
     #To modify to add new scores
-    def compute_scores(self):
+    def compute_scores(self, print_log = False):
+        if print_log:
+            print("Number of Nodes = ", self.graph.numberOfNodes())
+            print("Number of Edges = ", self.graph.numberOfEdges())
+
+        start = time.time()
+        mid_start = start
+        mid_end = start
+
         self.betweenness_centrality()
         self.export_scores('csv/','betweenness')
+        if print_log:
+            print("Betwenness Centrality completed and saved")
+            mid_end = time.time()
+            print("Elapsed time = ", mid_end - mid_start)
+        
         self.closeness_centrality()
         self.export_scores('csv/','closeness')
+        if print_log:
+            print("Closeness Centrality completed and saved")
+            mid_start = mid_end
+            mid_end = time.time()
+            print("Elapsed time = ", mid_end - mid_start)
+        
         self.degree_centrality()
         self.export_scores('csv/','degree')
+        if print_log:
+            print("Degree Centrality completed and saved")
+            mid_start = mid_end
+            mid_end = time.time()
+            print("Elapsed time = ", mid_end - mid_start)
+        
         self.eigenvector_centrality()
         self.export_scores('csv/','eigenvector')
+        if print_log:
+            print("Eigenvector Centrality completed and saved")
+            mid_start = mid_end
+            mid_end = time.time()
+            print("Elapsed time = ", mid_end - mid_start)
+        
         self.page_rank()
         self.export_scores('csv/','page')
+        if print_log:
+            print("Page Rank Coefficient completed and saved")
+            mid_start = mid_end
+            mid_end = time.time()
+            print("Elapsed time = ", mid_end - mid_start)
+        
         self.local_clustering_coefficient()
         self.export_scores('csv/','clustering')
+        if print_log:
+            print("Local Clustering Coefficient completed and saved")
+            mid_start = mid_end
+            mid_end = time.time()
+            print("Elapsed time = ", mid_end - mid_start)
+        
         self.katz_centrality()
         self.export_scores('csv/','katz')
+        if print_log:
+            print("Katz Centrality completed and saved")
+            mid_start = mid_end
+            mid_end = time.time()
+            print("Elapsed time = ", mid_end - mid_start)
+
+        end = time.time()
+        if print_log:
+            print("\nTotal Elapsed time = ", end - start, " seconds\n")
 
         return self.scores, self.ranking ,self.times
 
@@ -363,7 +415,7 @@ class Scores_Calculator:
 
         #remove closeness centrality if graph is disconnected and the approximation is set True
         if self.params['closeness']['approx'] is True:
-            if self.connected_components > 1 :
+            if self.connected_components() > 1 :
                 self.ranking.pop('closeness')
 
         #points are assigned based on the ranking of the size of candidates( equal to 5 by default)
