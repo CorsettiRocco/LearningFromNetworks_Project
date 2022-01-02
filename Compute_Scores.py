@@ -415,7 +415,7 @@ class Scores_Calculator:
 
         #remove closeness centrality if graph is disconnected and the approximation is set True
         if self.params['closeness']['approx'] is True:
-            if self.connected_components() > 1 :
+            if self.connected_components() > 1 and 'closeness' in self.ranking.keys():
                 self.ranking.pop('closeness')
 
         #points are assigned based on the ranking of the size of candidates( equal to 5 by default)

@@ -79,7 +79,7 @@ for g in graph_list:
     CS = Scores_Calculator(name = list_of_names[0])
     #Read the graph and compute the scores and the rank
     CS.read_text_graph(g) 
-    CS.set_approx(False)    #To remove in the future, after the correction of voting_rule
+    #CS.set_approx(False)    #To remove in the future, after the correction of voting_rule
     CS.compute_scores()
     res = CS.voting_rule(print_res = False)
     results = res.copy()    #To solve the copy problem
@@ -89,7 +89,7 @@ for g in graph_list:
    
     #Create a new class that takes the subgraph as input and redo calculations
     CS_sub = Scores_Calculator(graph = subgraph,name = list_of_names[1])
-    CS_sub.set_approx(False)
+    #CS_sub.set_approx(False)
     CS_sub.compute_scores()
     res = CS_sub.voting_rule(print_res = False)
     results_sub = res.copy()
