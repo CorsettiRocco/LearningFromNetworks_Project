@@ -447,8 +447,8 @@ class Scores_Calculator:
         for counts in self.results_voting_rule:
             self.results_voting_rule[counts]={k: v for k, v in sorted(self.results_voting_rule[counts].items(), key=lambda item: item[1], reverse = True)}
 
-        #evaluate if a majority winner exists
-        if (list(self.results_voting_rule['majority_count'].values())[0] >= len(self.ranking)) and (type == 'majority_count' or 'all'):
+        #evaluate if a majority winner exists by checking if has been voted more than the number of centrality scores used divided by 2
+        if (list(self.results_voting_rule['majority_count'].values())[0] > (len(self.ranking)/2)) and (type == 'majority_count' or 'all'):
             if print_res:
                 print('Node: ',list(self.results_voting_rule['majority_count'].keys())[0],' wins the majority with ',\
             list(self.results_voting_rule['majority_count'].values())[0],' votes')
