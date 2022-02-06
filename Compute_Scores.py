@@ -425,7 +425,7 @@ class Scores_Calculator:
                     if str(self.ranking[ranks][i][0]) in self.results_voting_rule['borda_count']:
                         self.results_voting_rule['borda_count'][str(self.ranking[ranks][i][0])] += (candidates - i)
                     else:
-                        self.results_voting_rule['borda_count'][str(self.ranking[ranks][i][0])] = 1
+                        self.results_voting_rule['borda_count'][str(self.ranking[ranks][i][0])] = (candidates - i)
         #each candidate receive a single point if it is in the top 5
         if type == 'single_count' or 'all':
             for ranks in self.ranking:
@@ -460,6 +460,8 @@ class Scores_Calculator:
 
         #save to .csv in './voting_results/'
         df_voting.to_csv('voting_results/'+'votes_'+self.name+'.csv')
+
+        
         
         #print results
         if type == 'all':
@@ -473,6 +475,13 @@ class Scores_Calculator:
             print('-'*width)
 
         return self.results_voting_rule
+    
+    def clear_voting_results(self):
+        #clear dictionary of voting results
+        self.results_voting_rule['borda_count'].clear()
+        self.results_voting_rule['single_count'].clear()
+        self.results_voting_rule['majority_count'].clear()
+
 
     
     #Method that can be used to choose some nodes to be eliminated in an automatic way

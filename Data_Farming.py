@@ -27,7 +27,7 @@ def scores_diff(black_list,pre_elem_data,post_elem_data,name):
         scores_diff_df[i] = (pre_sc_df[i] - post_sc_df[i])**2
 
     #save inside scores_diff folder
-    scores_diff_df.to_csv('scores_diff/'+name,index = False)
+    scores_diff_df.to_csv('scores_diff/'+name+'.csv',index = False)
     
 
 
@@ -69,7 +69,7 @@ def generate_name(path):
 #MAIN PIPELINE
 
 #Input phase ( Insert different graphs )
-graph_list = ['Test/Graphs/prova_grafo_piccolo.edges']  #Add more here
+graph_list = ['Test/Graphs/socfb-Brandeis99.edges']  #Add more here
 
 #Computation
 #I dind't know how to automatize the name choice =)
@@ -82,7 +82,11 @@ for g in graph_list:
     #CS.set_approx(False)    #To remove in the future, after the correction of voting_rule
     CS.compute_scores()
     res = CS.voting_rule(print_res = False)
-    results = res.copy()    #To solve the copy problem
+    CS.clear_voting_results()
+    results = res.copy()    #To solve the copy problem 
+
+    #declare blacklist programmaticaly
+    #l = ['3755']
     
     #Delete the node
     subgraph = CS.delete_nodes()
@@ -105,7 +109,7 @@ for g in graph_list:
     improved = improved_nodes( list(results['borda_count'].keys()), list(results_sub['borda_count'].keys()) )
     improved.sort(key = lambda imp_tuple: imp_tuple[1], reverse = True)
     #Print the improved nodes
-    #print("Improved:\n", improved )
+    print("Improved:\n", improved )
     for i in improved:
         print("Node ", i[0], " improved by ", i[1], " positions in the ranking")
     
