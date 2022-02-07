@@ -155,6 +155,11 @@ class Scores_Calculator:
         for key in self.params:
             self.params[key]['approx'] = approx
 
+    #Set the blacklist
+    def set_blacklist(self, bl):
+        for id in bl:
+            self.blacklist.append(id)
+
     ##
     #export_scores(list_of_scores,fp,score_name)
     #export nodes values into a csv file:
@@ -300,6 +305,9 @@ class Scores_Calculator:
 
     #Method that computes the local clustering coefficient
     def local_clustering_coefficient(self):
+        #Delete self-loops
+        self.graph.removeSelfLoops()
+
         #Setup the algorithm
         lcc = nk.centrality.LocalClusteringCoefficient(self.graph, self.params['clustering']['turbo'])
 
@@ -425,7 +433,7 @@ class Scores_Calculator:
                     if str(self.ranking[ranks][i][0]) in self.results_voting_rule['borda_count']:
                         self.results_voting_rule['borda_count'][str(self.ranking[ranks][i][0])] += (candidates - i)
                     else:
-                        self.results_voting_rule['borda_count'][str(self.ranking[ranks][i][0])] = (candidates - i)
+                        self.results_voting_rule['borda_count'][str(self.ranking[ranks][i][0])] = 1
         #each candidate receive a single point if it is in the top 5
         if type == 'single_count' or 'all':
             for ranks in self.ranking:
@@ -460,8 +468,6 @@ class Scores_Calculator:
 
         #save to .csv in './voting_results/'
         df_voting.to_csv('voting_results/'+'votes_'+self.name+'.csv')
-
-        
         
         #print results
         if type == 'all':
@@ -475,13 +481,6 @@ class Scores_Calculator:
             print('-'*width)
 
         return self.results_voting_rule
-    
-    def clear_voting_results(self):
-        #clear dictionary of voting results
-        self.results_voting_rule['borda_count'].clear()
-        self.results_voting_rule['single_count'].clear()
-        self.results_voting_rule['majority_count'].clear()
-
 
     
     #Method that can be used to choose some nodes to be eliminated in an automatic way
@@ -524,7 +523,7 @@ class Scores_Calculator:
 
 
     #Method that return a subgraph, takes a blacklist of nodes as input
-    def delete_nodes(self, blacklist = None):
+    def delete_nodes(self, substitute = False ,blacklist = None):
         #Create a list of nodes that do not contains the nodes in the blacklist
         nodes = [node for node in self.graph.iterNodes()]
 
@@ -532,6 +531,8 @@ class Scores_Calculator:
         if blacklist == None:
             self.choose_candidates()
             blacklist = self.blacklist
+        else:
+            self.set_blacklist(blacklist)
 
         #Remove the nodes in the blacklist
         for node in blacklist:
@@ -541,8 +542,8 @@ class Scores_Calculator:
         subgraph = nk.graphtools.subgraphFromNodes(self.graph, nodes)
         
         #To automatize the process I would write this line, then, I would reexecute compute scores
-        #self.graph = subgraph
-        #self.compute_scores()
+        if substitute is True:
+            self.graph = subgraph
 
         #Now I just return the graph
         return subgraph
