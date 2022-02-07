@@ -75,7 +75,7 @@ def voting_results(file, voting_rule = "borda_count"):
 
 #Take the inputs
 if len(sys.argv) < 2:
-    print("Usage: python3 Data_Farming_2.py graph_path")
+    print("Usage: python3 Data_Farming_2.py graph_path [optional: #nodes to remove]")
     quit()
 
 #Compute the first set of scores
@@ -86,14 +86,21 @@ os.system(cmd)
 #Compute the second set of scores
 list_of_names = generate_name(sys.argv[1])
 df = pd.read_csv(list_of_names[0])
-node_to_remove = df.iat[0,0]
+nodes_to_remove = df.iloc[:,0].tolist()
+if len(sys.argv) == 3:
+    if len(nodes_to_remove) >= int(sys.argv[2]):
+        nodes_to_remove = nodes_to_remove[:int(sys.argv[2])]
+else:
+    nodes_to_remove = nodes_to_remove[:1]
+print(nodes_to_remove)
 cmd = "python3 Remove_and_Scores.py "
-cmd += sys.argv[1] + " "
-cmd += str(node_to_remove)
+cmd += sys.argv[1]
+for n in nodes_to_remove:
+    cmd += " " + str(n)
 os.system(cmd)
 
 #Check for improvements
-scores_diff([node_to_remove], 'csv/'+list_of_names[1]+'.csv','csv/'+list_of_names[2]+'.csv',list_of_names[3])
+scores_diff(nodes_to_remove, 'csv/'+list_of_names[1]+'.csv','csv/'+list_of_names[2]+'.csv',list_of_names[3])
 improved = improved_nodes(voting_results(list_of_names[0]), voting_results(list_of_names[4]))
 improved.sort(key = lambda imp_tuple: imp_tuple[1], reverse = True)
 for i in improved:

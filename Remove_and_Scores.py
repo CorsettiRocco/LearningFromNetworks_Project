@@ -21,15 +21,17 @@ def generate_name(path):
 
 
 #Read the graph path
-if len(sys.argv) < 2 or len(sys.argv) > 3:
-    print("Usage: python3 Remove_and_Scores.py graph_path [optional: node_to_remove]")
+if len(sys.argv) < 2:
+    print("Usage: python3 Remove_and_Scores.py graph_path [optional: nodes_to_remove]")
     quit()
 
 graph_path = sys.argv[1]
 list_of_names = generate_name(graph_path)
-if len(sys.argv) == 3:
-    node_to_remove = [sys.argv[2]]
+if len(sys.argv) >= 3:
+    nodes_to_remove = []
     graph_name = list_of_names[1]
+    for i in range(2, len(sys.argv)):
+        nodes_to_remove.append(int(sys.argv[i]))
 else:
     graph_name = list_of_names[0]
     
@@ -37,8 +39,8 @@ else:
 #Create the class, read the file and remove the node
 CS = Scores_Calculator(name = graph_name)
 CS.read_text_graph(graph_path)
-if len(sys.argv) == 3:
-    CS.delete_nodes(substitute = True, blacklist = node_to_remove)
+if len(sys.argv) >= 3:
+    CS.delete_nodes(substitute = True, blacklist = nodes_to_remove)
 
 #Compute Scores
 CS.compute_scores(print_log = True)
