@@ -9,3 +9,6 @@ To avoid the strange behaviour of Python, we created a second program, Data_Farm
 
 To execute the code: python3 Data_Farming_2.py path_of_the_graph_to_analyze [optional: number_of_nodes_to_remove]
 
+
+The folder in the repository contain the results of the experiments that are in the report.
+The results of the experiment regarding the "Italian Roads" are not present here because the files are too big to be uploaded in GitHub ( The results of the Voting Rule are instead present )
