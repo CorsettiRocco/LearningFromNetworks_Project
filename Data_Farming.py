@@ -27,10 +27,8 @@ def scores_diff(black_list,pre_elem_data,post_elem_data,name):
         scores_diff_df[i] = (pre_sc_df[i] - post_sc_df[i])**2
 
     #save inside scores_diff folder
-    scores_diff_df.to_csv('scores_diff/'+name+'.csv',index = False)
+    scores_diff_df.to_csv('scores_diff/'+name,index = False)
     
-
-
 def find(element, element_list):
     for i in range(len(element_list)):
         if element_list[i] == element:
@@ -44,7 +42,6 @@ def improved_nodes(best_nodes, best_sub_nodes):
         if pos != -1 and i < pos:
             improved.append( (best_sub_nodes[i], pos - i) )
     return improved
-
 
 #generate name from path
 def generate_name(path):
@@ -69,33 +66,26 @@ def generate_name(path):
 #MAIN PIPELINE
 
 #Input phase ( Insert different graphs )
-graph_list = ['Test/Graphs/socfb-Brandeis99.edges']  #Add more here
+graph_list = ['Graphs/road-chesapeake.csv']  #Add more here
 
 #Computation
-#I dind't know how to automatize the name choice =)
 for g in graph_list:
     list_of_names = generate_name(g)
     #Create a new object each time to avoid problems
     CS = Scores_Calculator(name = list_of_names[0])
     #Read the graph and compute the scores and the rank
     CS.read_text_graph(g) 
-    #CS.set_approx(False)    #To remove in the future, after the correction of voting_rule
-    CS.compute_scores()
-    res = CS.voting_rule(print_res = False)
-    CS.clear_voting_results()
-    results = res.copy()    #To solve the copy problem 
-
-    #declare blacklist programmaticaly
-    #l = ['3755']
+    CS.compute_scores(print_log = True)
+    res = CS.voting_rule(print_res = True)
+    results = res.copy()    #To solve the copy problem
     
     #Delete the node
     subgraph = CS.delete_nodes()
    
     #Create a new class that takes the subgraph as input and redo calculations
     CS_sub = Scores_Calculator(graph = subgraph,name = list_of_names[1])
-    #CS_sub.set_approx(False)
-    CS_sub.compute_scores()
-    res = CS_sub.voting_rule(print_res = False)
+    CS_sub.compute_scores(print_log = True)
+    res = CS_sub.voting_rule(print_res = True)
     results_sub = res.copy()
 
     #Compute scores difference
@@ -108,8 +98,6 @@ for g in graph_list:
     #Check which nodes are the most influent after the elimination
     improved = improved_nodes( list(results['borda_count'].keys()), list(results_sub['borda_count'].keys()) )
     improved.sort(key = lambda imp_tuple: imp_tuple[1], reverse = True)
-    #Print the improved nodes
-    print("Improved:\n", improved )
     for i in improved:
         print("Node ", i[0], " improved by ", i[1], " positions in the ranking")
     
