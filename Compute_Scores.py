@@ -120,7 +120,6 @@ class Scores_Calculator:
         if weighted:
             self.graph = nk.graphtools.toWeighted(self.graph)
 
-
     #Method to set the graph in the class
     def set_graph(self, g, weighted = False, network_x = False):
         if network_x:
@@ -195,8 +194,7 @@ class Scores_Calculator:
             
             #remove temp.csv 
             os.remove(path_temp)   
-
-    
+ 
     #Method that return the number of connected components of the network
     def connected_components(self):
         #Prepare the algorithm
@@ -228,7 +226,6 @@ class Scores_Calculator:
         #If the approx attribute is true, use an approximated version of the algorithm, otherwise the exact one
         if self.params['closeness']['approx']:
             #It requires a connected graph
-            #assert self.connected_components()[0] == 1, "Graph not connected, cannot apply approximation\n"
             ncc = self.connected_components()
             if ncc >= 2:
                 print("Graph not connected , cannot apply closeness centrality approximation. ( Number of components = ", ncc, ")")
@@ -247,7 +244,6 @@ class Scores_Calculator:
         self.ranking['closeness'] = cln.ranking()
         self.times['closeness'] = (end - start)
 
-
     #Methods that compute the degree centrality of the nodes
     def degree_centrality(self):
         #Setup the algorithm
@@ -263,7 +259,6 @@ class Scores_Calculator:
         self.ranking['degree'] = dc.ranking()
         self.times['degree'] = end - start
 
-
     #Mehtods that computes the eigenvector centrality
     def eigenvector_centrality(self):
         #Setup algorithm
@@ -278,7 +273,6 @@ class Scores_Calculator:
         self.scores['eigenvector'] = ec.scores()
         self.ranking['eigenvector'] = ec.ranking()
         self.times['eigenvector'] = end - start
-
 
     #Methods that compute the page rank score
     def page_rank(self):
@@ -302,7 +296,6 @@ class Scores_Calculator:
         self.ranking['page'] = pr.ranking()
         self.times['page'] = end - start
 
-
     #Method that computes the local clustering coefficient
     def local_clustering_coefficient(self):
         #Delete self-loops
@@ -320,8 +313,7 @@ class Scores_Calculator:
         self.scores['clustering'] = lcc.scores()
         self.ranking['clustering'] = lcc.ranking()
         self.times['clustering'] = end - start
-
-    
+ 
     #Mehtod that computes the katz centrality
     def katz_centrality(self):
         #Setup the algorithm
@@ -337,9 +329,7 @@ class Scores_Calculator:
         self.ranking['katz'] = kc.ranking()
         self.times['katz'] = end - start
 
-
     #Wrapper method that computes and saves in csv format all the scores for a graph
-    #To modify to add new scores
     def compute_scores(self, print_log = False):
         if print_log:
             print("Number of Nodes = ", self.graph.numberOfNodes())
@@ -410,11 +400,7 @@ class Scores_Calculator:
 
         return self.scores, self.ranking ,self.times
 
-    #Problem with the approximated computation ( Closeness centrality in its approximated version isn't always computable
-    #       when this happen the method fail ) [Try using the try_class.py file removing set_approx(False)]
-    #Problem when the majority vote has a winner (it happend with random elimination, hence is difficult to have the error)
-    #       [To try to have the error, delete the '#' in the 2 lines before the creation of the subgraph and execute some times, ti should happe]
-    #voting rule to identify the most influential nodes in the network based on the scores(voters) and nodes(candidates)
+    #Voting rule to identify the most influential nodes in the network based on the scores(voters) and nodes(candidates)
     def voting_rule(self, type = 'borda_count', candidates = 5, print_res = True):
 
         #Keep track of the params considered to keep consistency in the methods
@@ -482,7 +468,6 @@ class Scores_Calculator:
 
         return self.results_voting_rule
 
-    
     #Method that can be used to choose some nodes to be eliminated in an automatic way
     #It will choose, by default, the most important node using the voting rule
     #It could choose more nodes to remove
@@ -518,10 +503,6 @@ class Scores_Calculator:
         #Save the blacklist
         self.blacklist = blacklist[:self.params['choose_candidate']['selected']]
 
-
-
-
-
     #Method that return a subgraph, takes a blacklist of nodes as input
     def delete_nodes(self, substitute = False ,blacklist = None):
         #Create a list of nodes that do not contains the nodes in the blacklist
@@ -541,13 +522,12 @@ class Scores_Calculator:
         #Create the subgraph
         subgraph = nk.graphtools.subgraphFromNodes(self.graph, nodes)
         
-        #To automatize the process I would write this line, then, I would reexecute compute scores
+        #If substitute is True update the graph with the one just created
         if substitute is True:
             self.graph = subgraph
 
         #Now I just return the graph
         return subgraph
-
 
     def print_results(self):
         for key in self.ranking:
