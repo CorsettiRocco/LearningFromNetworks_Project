@@ -11,4 +11,4 @@ To execute the code: python3 Data_Farming_2.py path_of_the_graph_to_analyze [opt
 
 
 The folder in the repository contain the results of the experiments that are in the report.
-The results of the experiment regarding the "Italian Roads" are not present here because the files are too big to be uploaded in GitHub ( The results of the Voting Rule are instead present )
+(Some results are not here, but in a Goolge Drive folder due to the size of the files, link for the folder: )
