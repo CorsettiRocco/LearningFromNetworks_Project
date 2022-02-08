@@ -1,4 +1,11 @@
 # LearningFromNetworks_Project
-Project for the Learning From Network course
+To use the code in this repository the istallation of NetworKit is needed (https://networkit.github.io/)
 
-Ciao Mattia =)
+The main class is: Compute_Scores.py
+
+The program Data_Farming.py was created to compute the scores of a list of networks automatically, to use this file the name of the graphs must be insert programmatically. (This code has some strange behaviour given, probably, by the Python interpreter)
+
+To avoid the strange behaviour of Python, we created a second program, Data_Farming_2.py, that, instead of using the class multiple times in the same program, uses the system calls to execute the class multiple times, but in different programs. In this way the code works fine.
+
+To execute the code: python3 Data_Farming_2.py path_of_the_graph_to_analyze [optional: number_of_nodes_to_remove]
+
